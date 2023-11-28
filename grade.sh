@@ -8,9 +8,38 @@ mkdir grading-area
 git clone $1 student-submission
 echo 'Finished cloning'
 
+if [[ -f student-submission/ListExamples.java ]]
+then
+  echo 'ListExamples.java found'
+else
+  echo 'ListExamples.java not found'
+  echo 'Score: 0/4'
+  exit
+fi
 
-# Draw a picture/take notes on the directory structure that's set up after
-# getting to this point
+cp student-submission/ListExamples.java ./
 
-# Then, add here code to compile and run, and do any post-processing of the
-# tests
+javac -cp $CPATH *.java
+
+java -cp $CPATH org.junit.runner.JUnitCore TestListExamples > junit-output.txt
+
+FAILURES=`grep -c FAILURES!!! junit-output.txt`
+
+if [[ $FAILURES -eq 0 ]]
+then
+  echo 'All tests passed'
+  echo '4/4'
+else
+
+  RESULT_LINE=`grep "Tests run:" junit-output.txt`
+  COUNT=${RESULT_LINE:25:1}
+
+  echo "JUnit output was:"
+  cat junit-output.txt
+  echo ""
+  echo "--------------"
+  echo "| Score: $COUNT/4 |"
+  echo "--------------"
+  echo ""
+fi
+
